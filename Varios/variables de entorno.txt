@@ -1,0 +1,15 @@
+APPUSER_PUID=1002
+APPUSER_PGID=100
+
+TIME_ZONE_VAULE=Europe/Madrid
+
+PATH_TO_APPDATA=/srv/dev-disk-by-uuid-dee6e7ad-abb0-483d-93f4-3052adb442d4/appdata/
+PATH_TO_DATA=/srv/dev-disk-by-uuid-dee6e7ad-abb0-483d-93f4-3052adb442d4/data/
+
+
+#PATH_TO_DOCUMENTS=
+#PATH_TO_MEDIA=
+#PATH_TO_MOVIES=
+#PATH_TO_PHOTOS=
+#PATH_TO_BACKUPS=
+#PATH_TO_DOWNLOADS=
