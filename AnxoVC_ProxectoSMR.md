@@ -403,7 +403,7 @@ A continuación móstrase un resumo dos parámetros de laminado utilizados:
 
 | Parámetro                | Valor                                                                      |
 | :----------------------- | :------------------------------------------------------------------------- |
-| **Material**             | [ASA](a24anxovc/naspi/Proxecto_SMR/Gcodes/Perfil_Impresora/Manual_ASA.pdf) |
+| **Material**             | [ASA](https://drive.google.com/file/d/1JwExN4wd10Q1Cfse2LEXTuhXmUYmsdq4/view?usp=sharing) |
 | **Altura de capa**       | 0.12 mm                                                                    |
 | **Recheo (Infill)**      | 20%                                                                        |
 | **Paredes**              | 3 liñas                                                                    |
@@ -413,7 +413,7 @@ A continuación móstrase un resumo dos parámetros de laminado utilizados:
 
 Podes consultar o documento detallado con toda a configuración de Cura no seguinte enlace:
 
-**[Perfil de Impresión Completo (ASA)](a24anxovc/naspi/Proxecto_SMR/Gcodes/Perfil_Impresora)**
+**[Perfil de Impresión Completo (ASA)](https://drive.google.com/drive/folders/1RkX4N4Xy4HfnvDoIQE6B7NaK1xkpEFSf?usp=sharing)**
 
 ### 11.3 Montaxe final
 Unha vez impresas as pezas, realizouse a montaxe utilizando parafusos métrica M2.5 e M3. Engadiuse un ventilador PWM Noctua na parte superior controlado polo software do Radxa Penta HAT, que se activa automaticamente segundo a temperatura da CPU.
@@ -428,7 +428,7 @@ Para a realización da carcasa optouse por utilizar o deseño creado por Michael
 ### 11.5 Arquivos de Impresión
 Os arquivos laminados listos para imprimir pódense atopar na seguinte localización do proxecto:
 
-**[Enlace á carpeta GCodes](a24anxovc/naspi/Proxecto_SMR/Gcodes)**
+**[Enlace á carpeta GCodes](https://drive.google.com/drive/folders/181ueH3BIyR8PGevTSBU_5yRnzfdhhJOC?usp=sharing)**
 
 ## 12. Conclusión
 
@@ -447,27 +447,27 @@ Neste apartado recóllese toda a documentación complementaria, recursos gráfic
 * Software de instalacion
 ### 13.1 Material Fotográfico
 Recompilación visual do proceso de montaxe e do resultado final do servidor.
-*  **[Ver Galería de Imaxes da Montaxe](a24anxovc/naspi/Proxecto_SMR/ImagenesMontaxe)**
+*  **[Ver Galería de Imaxes da Montaxe](https://drive.google.com/drive/folders/197o6vWHkWA7Vpss-BtKSE1F9kdA77Qjc?usp=sharing)**
     * *Inclúe: Fotos dos compoñentes, ensamblaxe do HAT, conexión dos discos e instalación na carcasa.*
 
 ### 13.2 Rexistro de Configuración
 Capturas de pantalla que documentan os pasos críticos da configuración do software.
-*  **[Capturas de Comandos](a24anxovc/naspi/Proxecto_SMR/Imagenes)**
+*  **[Capturas de Comandos](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/Imagenes)**
 
 ### 13.3 Listaxe de Compras e Hardware
-*  **[ Anexo de Compras Completo](a24anxovc/naspi/Proxecto_SMR/Varios/LinksDeCompra.md)**
+*  **[ Anexo de Compras Completo](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/blob/main/Varios/LinksDeCompra.pdf)**
     * *Inclúe: Raspberry Pi 5, Radxa Penta HAT e Ventilador Noctua.*
 
 ### 13.4 Manuais Técnicos e Scripts
 Documentación técnica específica elaborada durante o proxecto para configuracións avanzadas.
 1.  **Seguridade e Rede:**
-    * **[Manual de Instalación: Pi-hole + WireGuard](a24anxovc/naspi/Proxecto_SMR/Varios/Instalar_Pi-Hole_Wireguard.md)**
+    * **[Manual de Instalación: Pi-hole + WireGuard](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/blob/main/Varios/Instalar_Pi-Hole_Wireguard.pdf)**
 2.  **Fabricación (Impresión 3D):**
-    * **[Perfil de Impresión ASA (Artillery Genius)](a24anxovc/naspi/Proxecto_SMR/Gcodes/Perfil_Impresora)**
-    * **[Arquivos de Impresión (.gcode)](a24anxovc/naspi/Proxecto_SMR/Gcodes/)**
+    * **[Perfil de Impresión ASA (Artillery Genius)](https://drive.google.com/file/d/1axdeiDCbMl3HMvVPL1501YVSku34JNCY/view?usp=drive_link)**
+    * **[Arquivos de Impresión (.gcode)](https://drive.google.com/drive/folders/181ueH3BIyR8PGevTSBU_5yRnzfdhhJOC?usp=drive_link)**
 
 ### 13.5 Software de Instalación e Utilidades
-Relación de [software](a24anxovc/naspi/Proxecto_SMR/Software) de terceiros empregado para a posta en marcha e xestión do servidor:
+Relación de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/Software) de terceiros empregado para a posta en marcha e xestión do servidor:
 
 | Software                | Función                           | Ligazón Oficial                                            |
 | :---------------------- | :-------------------------------- | :--------------------------------------------------------- |
