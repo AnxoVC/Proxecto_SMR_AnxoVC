@@ -413,7 +413,7 @@ A continuación móstrase un resumo dos parámetros de laminado utilizados:
 
 Podes consultar o documento detallado con toda a configuración de Cura no seguinte enlace:
 
-**[Perfil de Impresión Completo (ASA)](https://drive.google.com/drive/folders/1RkX4N4Xy4HfnvDoIQE6B7NaK1xkpEFSf?usp=sharing)**
+**[Perfil de Impresión Completo (ASA)](https://drive.google.com/file/d/1YtvuCdPHcNcCcg9tZI5pMN8JEUxIFYdY/view?usp=drive_link)**
 
 ### 11.3 Montaxe final
 Unha vez impresas as pezas, realizouse a montaxe utilizando parafusos métrica M2.5 e M3. Engadiuse un ventilador PWM Noctua na parte superior controlado polo software do Radxa Penta HAT, que se activa automaticamente segundo a temperatura da CPU.
