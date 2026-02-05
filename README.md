@@ -384,44 +384,6 @@ services:
 
 * Iniciamos o contedor beszel-agent.
 
-## 7.5 Nginx Proxy Manager (Proxy Inverso e SSL)
-Para xestionar o acceso externo de forma sinxela e segura, decidín utilizar Nginx Proxy Manager (NPM). Esta ferramenta permíteme asignar dominios (como nextcloud.anxovc.duckdns.org) aos meus servizos internos e xestionar automaticamente os certificados de seguridade SSL.
-
-**Paso previo:** Liberación de portos en OMV Como o panel de control de OpenMediaVault utiliza por defecto o porto 80, este entraría en conflito co servidor web de Nginx. Para solucionar isto, antes de instalar o contedor, cambiei o porto da interface web de OMV:
-
-* Fun a Sistema > Workbench.
-
-* Cambiei o porto HTTP de 80 a 8080.
-
-* Agora, para entrar en OMV utilizo http://naspi:8080, deixando o porto 443 libre para os servizos web públicos.
-
-### Instalación do servizo Engadimos o seguinte bloque ao noso docker-compose.yml:
-
-```YAML
-services:
-  nginx-proxy-manager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    container_name: nginx-proxy-manager
-    restart: unless-stopped
-    ports:
-      - '80:80'     # Tráfico HTTP web 
-      - '81:81'     # Panel de Administración de NPM
-      - '443:443'   # Tráfico HTTPS web 
-    volumes:
-      - ${PATH_TO_APPDATA}/npm/data:/data
-      - ${PATH_TO_APPDATA}/npm/letsencrypt:/etc/letsencrypt
-```
-### Configuración inicial:
-
-* Iniciamos o contedor e accedemos a http://naspi:81.
-
-* Ingresamos coas credenciais por defecto:
-
-* Email: admin@example.com
-
-* Password: changeme
-
-O sistema obrigaranos a cambiar estes datos inmediatamente por seguridade.
 
 ## 8. Seguridade
 
