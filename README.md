@@ -48,10 +48,10 @@ O almacenamento que estou usando:
 
 * HDD 2.5" de 500GB a 7200rpm da marca HGST 
 * HDD 2.5" de 500GB a 5400rpm da marca Samsung
-* HDD 2.5" de 320GB a 5400rpm da marca WDigital
-* SSD 2.5" de 240GB da marca Kingston
+* HDD 2.5" de 500GB a 5400rpm da marca WDigital
+* HDD 2.5" de 500GB a 5400rpm da marca APPLE
   
-Con esto vou a armar un **RAID 5**. O que me permite a tolenrancia de fallos nun so disco, e un espacio util total de **670.33GiB**. 
+Con esto vou a armar un **RAID 5**. O que me permite a tolerancia de fallos nun so disco, e un espacio util total de **670.33GiB**. 
 
 
 ### 4.4 Radxa Penta Sata Hat Para Rasberry Pi 5 
@@ -78,13 +78,13 @@ Pasos principais:
 ## 6. Configuración do NAS
 
 Unha vez instalado o sistema operativo na Sd con `rasberry pi imager`, insertaremos a SD na rasberry e acenderémola, e pasado uns minutos, imos proceder a conectarnos a ela, mediante ssh co seginte comando desde a nosa terminal.
-```
+```bash
 ssh usuario@enderezo IP / nombre do dispositivo
 ```
 Para averiguar a enderezo IP, poderemos acceder ao noso router e nos mostrara a enderezo IP do noso dispositivo.
 
 No seguinte paso imos actualizar o sistema co seguinte comando `sudo apt update && sudo apt upgrade -y` , asi teremos o sistema actualizado, e procederemos a instalar `OpenMediaVault` co seguinte comando, que e uns script de instalacion.
-```
+```bash
 wget -O - https://raw.githubusercontent.com/OpenMediaVault-Plugin-Developers/installScript/master/install | sudo bash
 ```
 Este proceso vai tardar uns minutos, cando termine teremos que meter a IP da nosa RasberryPI no navegador web, e tera que mostrar unha pagina asi:
@@ -126,7 +126,7 @@ Clicaremos en Salvar e arriba aparecerá a barra amarela de configuración, Conf
 
 Ao finalizar, o navegador recargarase e perderemos a conexión. Agora teremos que entrar poñendo https:// diante da IP:
 ```
-https://192.168.1.128
+https://naspi
 ```
 ### 6.2 Como Crear un Raid 
 
@@ -174,7 +174,7 @@ E daremoslle acceso de **lectura/escritura** en **appdata** e de **lectura** en 
 
 Imos crear unha variables de entorno que nos facilitaran o traballo ao instalar contedores con compose, para esto temos que escribir en **compose** dentro de **arquivos** clicaremos no icono cunha estreliña, e escribiremos o seguinte.
 
-```
+```yaml
 APPUSER_PUID=1002
 APPUSER_PGID=100
 
@@ -197,7 +197,7 @@ Para instalar NextCloud, necesitaremos unha base de datos, por eso instalaremos 
 
 Para instalalos imos a utilizar o seguinte codigo:
 
-```
+```yaml
 services:
   db:
     image: lscr.io/linuxserver/mariadb:latest
@@ -239,7 +239,7 @@ Clicaremos en  salvar e Volveremos a o apartado de variables de entorno para añ
 
 Ao finalizar en Comouse podemos ir a servicios e comprobar que estan funcionando.
 
-Para acceder a phpmyadmimin teremos que colocar o siguiente no navegador `http://192.168.1.128:8081` e colocaremos o usuario e contrasinal
+Para acceder a phpmyadmimin teremos que colocar o siguiente no navegador `http://naspi:8081` e colocaremos o usuario e contrasinal
 ![alt text](Imagenes/phpmyadmin.png)
 
 Dentro de PhpMyAdmin vamos crear un usuario ca seguinte configuracion:
@@ -255,7 +255,7 @@ Para finalizar imos instalar Nextcloud, clicando en Compose-Arquivos-Crear-Crear
 
 E seleccionaremos Nextcloud,clicaremos no cuadrado de mais, meteremos unha descripcion e daremoslle a engadir,confirmaremos os cambios, e editaremos o arquivo, e ten que quedar asi:
 
-```
+```yaml
   nextcloud:
     image: lscr.io/linuxserver/nextcloud:latest
     container_name: nextcloud
@@ -278,6 +278,41 @@ O copiaremos e o meteremos co contenedor de Mysql.
 Xa feito esto, no navegador poñeremos `https://ip`, e meteremos as seguintes configuracions:
 
 ![alt text](Imagenes/nextcloud.png)
+
+### 7.2.1 Configuración de Memories
+Para mellorar a xestión de fotos e vídeos, instalouse a aplicación Memories. Esta app ofrece unha experiencia moito máis rápida e fluída que a galería por defecto, similar a Google Photos, incluíndo liña de tempo e mapa.
+
+1. Instalación e Indexación Executamos os seguintes comandos para descargar a app e xerar o índice de fotos existente:
+
+```Bash
+
+docker exec -it nextcloud occ app:install memories
+docker exec -it nextcloud occ memories:index
+```
+2. Configuración de Vídeo, para poder reproducir vídeos dentro do navegador, é necesario indicarlle a Nextcloud onde se atopa o transcodificador FFmpeg:
+
+```Bash
+docker exec -it nextcloud occ config:system:set memories.vod.path --value="/usr/bin/ffmpeg"
+```
+3. Activación de Miniaturas de Vídeo, Nextcloud non xera portadas para os vídeos para aforrar recursos. Para ver as imaxes dos vídeos na galería, activáronse os xeradores correspondentes con estes comandos:
+
+```Bash
+
+# Activar o provedor xeral de vídeo
+docker exec -it nextcloud occ config:system:set enabledPreviewProviders 1 --value="OC\Preview\Movie"
+
+# Activar soporte para móbiles
+docker exec -it nextcloud occ config:system:set enabledPreviewProviders 2 --value="OC\Preview\MP4"
+
+# Activar soporte para outros formatos 
+docker exec -it nextcloud occ config:system:set enabledPreviewProviders 3 --value="OC\Preview\MKV"
+```
+Finalmente, reiniciamos o contedor para aplicar os cambios:
+
+```Bash
+
+docker restart nextcloud
+```
 
 ### 7.3 Tailscale
 
@@ -309,6 +344,84 @@ Unha vez feito, na terminal aparecerá "Success".
 
 Agora podemos ir á web de Tailscale (Admin Console) e veremos o noso servidor conectado e coa IP asignada.
 
+## 7.4 Monitorización con Beszel
+Para ter un control detallado do estado do hardware (CPU, RAM, temperatura, uso de discos e Docker) sen consumir moitos recursos, elixín Beszel. É unha ferramenta de monitorización moi lixeira que consta de dúas partes: o Hub (o panel de control) e o Axente (que recolle os datos).
+
+Para instalalo, engadimos o seguinte bloque ao noso arquivo docker-compose.yml xunto cos outros servizos:
+
+```YAML
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ${PATH_TO_APPDATA}/beszel/data:/beszel_data
+
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/extra/root:ro
+    environment:
+      - PORT=45876
+      - KEY=ssh-ed25519 AAAAC3Nz... (tu clave larga aquí)
+```
+### Proceso de configuración:
+
+* Primeiro iniciamos só o contedor beszel (o Hub).
+
+* Entramos no navegador en http://naspi:8090 e creamos o usuario administrador.
+
+* Dentro do panel, pulsamos en "Add System". Isto daranos unha Clave Pública (Public Key).
+
+* Copiamos esa clave e pegámola nas variables de entorno ou directamente no docker-compose.yml onde pon KEY=.
+
+* Iniciamos o contedor beszel-agent.
+
+## 7.5 Nginx Proxy Manager (Proxy Inverso e SSL)
+Para xestionar o acceso externo de forma sinxela e segura, decidín utilizar Nginx Proxy Manager (NPM). Esta ferramenta permíteme asignar dominios (como nextcloud.anxovc.duckdns.org) aos meus servizos internos e xestionar automaticamente os certificados de seguridade SSL.
+
+**Paso previo:** Liberación de portos en OMV Como o panel de control de OpenMediaVault utiliza por defecto o porto 80, este entraría en conflito co servidor web de Nginx. Para solucionar isto, antes de instalar o contedor, cambiei o porto da interface web de OMV:
+
+* Fun a Sistema > Workbench.
+
+* Cambiei o porto HTTP de 80 a 8080.
+
+* Agora, para entrar en OMV utilizo http://naspi:8080, deixando o porto 443 libre para os servizos web públicos.
+
+### Instalación do servizo Engadimos o seguinte bloque ao noso docker-compose.yml:
+
+```YAML
+services:
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - '80:80'     # Tráfico HTTP web 
+      - '81:81'     # Panel de Administración de NPM
+      - '443:443'   # Tráfico HTTPS web 
+    volumes:
+      - ${PATH_TO_APPDATA}/npm/data:/data
+      - ${PATH_TO_APPDATA}/npm/letsencrypt:/etc/letsencrypt
+```
+### Configuración inicial:
+
+* Iniciamos o contedor e accedemos a http://naspi:81.
+
+* Ingresamos coas credenciais por defecto:
+
+* Email: admin@example.com
+
+* Password: changeme
+
+O sistema obrigaranos a cambiar estes datos inmediatamente por seguridade.
 
 ## 8. Seguridade
 
@@ -331,16 +444,16 @@ Realizáronse diversas probas:
 
 Durante o desenvolvemento apareceron algunhas dificultades:
 
-## 10.1 A tarxeta de expansion non detectaba os discos
- Solucionado: modificar arquivo, co comando `sudo nano /boot/fimware/config.txt` e engadimos na ultima linea do arquivo:
+## 10.1 A tarxeta de expansion Radxa non detectaba os discos
+ Para solucionalo debemos modificar o arquivo, co comando `sudo nano /boot/fimware/config.txt` e engadimos na ultima linea do arquivo:
 ```
 [all] 
 dtparam=pciex1=on 
 dtparam=pciex1_gen=3
 ``` 
 
-## 10.2 Solución Erro: Dominio non confiable en NextCloud
-Se ao intentar entrar en Nextcloud dende unha IP de Tailscale aparece unha pantalla azul coa mensaxe "Acceso a través de un dominio en el que no se confía", é porque Nextcloud ten unha lista de seguridade e bloquea todo o que non estea nela.
+## 10.2 Dominio non confiable en NextCloud
+Se ao intentar entrar en Nextcloud dende unha IP de Tailscale ou WireGuard aparece unha pantalla azul coa mensaxe "Acceso a través de un dominio en el que no se confía", é porque Nextcloud ten unha lista de seguridade e bloquea todo o que non estea nela.
 
 Para autorizar a nova IP, temos que editar o arquivo config.php. Como é un arquivo protexido, non podemos facelo cun usuario normal, así que seguiremos estes pasos na terminal.
 
@@ -373,7 +486,7 @@ Ten que quedar asi:
     0 => 'localhost',
     1 => 'naspi',
     2 => '100.114.185.22',
-    3 => '192.168.1.128',
+    3 => '192.168.1.100',
   ),
 ```
 
@@ -403,10 +516,8 @@ A continuación móstrase un resumo dos parámetros de laminado utilizados:
 
 | Parámetro                | Valor                                                                      |
 | :----------------------- | :------------------------------------------------------------------------- |
-| **Material**             | [ASA](https://drive.google.com/file/d/1JwExN4wd10Q1Cfse2LEXTuhXmUYmsdq4/view?usp=sharing) |
-| **Altura de capa**       | 0.12 mm                                                                    |
+| **Material**             | [ASA](https://drive.google.com/file/d/1JwExN4wd10Q1Cfse2LEXTuhXmUYmsdq4/view?usp=sharing) |                                                                    |
 | **Recheo (Infill)**      | 20%                                                                        |
-| **Paredes**              | 3 liñas                                                                    |
 | **Temperatura Boquilla** | 240°C - 245°C                                                              |
 | **Temperatura Cama**     | 95°C - 100°C                                                               |
 | **Refrixeración**        | 0%                                                                         |
@@ -456,7 +567,6 @@ Capturas de pantalla que documentan os pasos críticos da configuración do soft
 
 ### 13.3 Listaxe de Compras e Hardware
 *  **[ Anexo de Compras Completo](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/blob/main/Varios/LinksDeCompra.pdf)**
-    * *Inclúe: Raspberry Pi 5, Radxa Penta HAT e Ventilador Noctua.*
 
 ### 13.4 Manuais Técnicos e Scripts
 Documentación técnica específica elaborada durante o proxecto para configuracións avanzadas.
@@ -472,9 +582,9 @@ Relación de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/
 | Software                | Función                           | Ligazón Oficial                                            |
 | :---------------------- | :-------------------------------- | :--------------------------------------------------------- |
 | **Raspberry Pi Imager** | Gravación do SO na MicroSD        | [Descargar](https://www.raspberrypi.com/software/)         |
-| **Ultimaker Cura**      | Laminado (Slicing) dos modelos 3D | [Descargar](https://ultimaker.com/software/ultimaker-cura) |
+| **Ultimaker Cura**      | Laminado dos modelos 3D | [Descargar](https://ultimaker.com/software/ultimaker-cura) |
 | **PuTTY / OpenSSH**     | Conexión remota por terminal      | [Descargar](https://www.putty.org/)                        |
 | **Advanced IP Scanner** | Localización da IP na rede local  | [Descargar](https://www.advanced-ip-scanner.com/)          |
-| **Tailscale**           | Rede Mesh e VPN (Alternativa)     | [Descargar](https://tailscale.com/download)                |
+| **Tailscale**           |  VPN    | [Descargar](https://tailscale.com/download)                |
 
 
