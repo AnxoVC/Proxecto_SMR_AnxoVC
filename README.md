@@ -548,4 +548,7 @@ Relación de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/
 | **Advanced IP Scanner** | Localización da IP na rede local  | [Descargar](https://www.advanced-ip-scanner.com/)          |
 | **Tailscale**           |  VPN    | [Descargar](https://tailscale.com/download)                |
 
+## 14. Rentabilidad Economica
+
+
 
