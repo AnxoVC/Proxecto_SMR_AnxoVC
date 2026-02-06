@@ -51,7 +51,7 @@ O almacenamento que estou usando:
 * HDD 2.5" de 500GB a 5400rpm da marca WDigital
 * HDD 2.5" de 500GB a 5400rpm da marca APPLE
   
-Con esto vou a armar un **RAID 5**. O que me permite a tolerancia de fallos nun so disco, e un espacio util total de **670.33GiB**. 
+Con esto vou a armar un **RAID 5**. O que me permite a tolerancia de fallos nun so disco, e un espacio util total de **1.3TB**. 
 
 
 ### 4.4 Radxa Penta Sata Hat Para Rasberry Pi 5 
@@ -280,24 +280,22 @@ Xa feito esto, no navegador poñeremos `https://ip`, e meteremos as seguintes co
 ![alt text](Imagenes/nextcloud.png)
 
 ### 7.2.1 Configuración de Memories
-Para mellorar a xestión de fotos e vídeos, instalouse a aplicación Memories. Esta app ofrece unha experiencia moito máis rápida e fluída que a galería por defecto, similar a Google Photos, incluíndo liña de tempo e mapa.
+Para mellorar a xestión de fotos e vídeos, instalouse a aplicación Memories. Esta app ofrece unha experiencia moito máis rápida e fluída que a galería por defecto de nextcloud e similar a Google Photos.
 
-1. Instalación e Indexación Executamos os seguintes comandos para descargar a app e xerar o índice de fotos existente:
+1. Instalación:Executamos os seguintes comandos para descargar a app e xerar o índice de fotos existente:
 
 ```Bash
-
 docker exec -it nextcloud occ app:install memories
 docker exec -it nextcloud occ memories:index
 ```
 2. Configuración de Vídeo, para poder reproducir vídeos dentro do navegador, é necesario indicarlle a Nextcloud onde se atopa o transcodificador FFmpeg:
 
 ```Bash
-docker exec -it nextcloud occ config:system:set memories.vod.path --value="/usr/bin/ffmpeg"
+docker exec -it nextcloud occ config:system:set memories.vod.path -value="/usr/bin/ffmpeg"
 ```
 3. Activación de Miniaturas de Vídeo, Nextcloud non xera portadas para os vídeos para aforrar recursos. Para ver as imaxes dos vídeos na galería, activáronse os xeradores correspondentes con estes comandos:
 
 ```Bash
-
 # Activar o provedor xeral de vídeo
 docker exec -it nextcloud occ config:system:set enabledPreviewProviders 1 --value="OC\Preview\Movie"
 
@@ -310,7 +308,6 @@ docker exec -it nextcloud occ config:system:set enabledPreviewProviders 3 --valu
 Finalmente, reiniciamos o contedor para aplicar os cambios:
 
 ```Bash
-
 docker restart nextcloud
 ```
 
@@ -344,7 +341,7 @@ Unha vez feito, na terminal aparecerá "Success".
 
 Agora podemos ir á web de Tailscale (Admin Console) e veremos o noso servidor conectado e coa IP asignada.
 
-## 7.4 Monitorización con Beszel
+### 7.4 Monitorización con Beszel
 Para ter un control detallado do estado do hardware (CPU, RAM, temperatura, uso de discos e Docker) sen consumir moitos recursos, elixín Beszel. É unha ferramenta de monitorización moi lixeira que consta de dúas partes: o Hub (o panel de control) e o Axente (que recolle os datos).
 
 Para instalalo, engadimos o seguinte bloque ao noso arquivo docker-compose.yml xunto cos outros servizos:
@@ -359,8 +356,20 @@ services:
       - "8090:8090"
     volumes:
       - ${PATH_TO_APPDATA}/beszel/data:/beszel_data
+```
+#### Proceso de configuración:
 
-  beszel-agent:
+* Primeiro iniciamos só o contedor beszel.
+
+* Entramos no navegador en http://naspi:8090 e creamos o usuario administrador.
+
+* Dentro do panel, pulsamos en "Add System". Isto daranos unha Clave Pública.
+
+* Copiamos esa clave e pegámola nas variables de entorno ou directamente no docker-compose.yml onde pon KEY=.
+
+* Iniciamos o contedor beszel-agent dentro do mesmo contenedor de beszel.
+```YAML
+beszel-agent:
     image: henrygd/beszel-agent:latest
     container_name: beszel-agent
     restart: unless-stopped
@@ -370,20 +379,8 @@ services:
       - /:/extra/root:ro
     environment:
       - PORT=45876
-      - KEY=ssh-ed25519 AAAAC3Nz... (tu clave larga aquí)
+      - KEY=Pega aqui a tua clave publica 
 ```
-### Proceso de configuración:
-
-* Primeiro iniciamos só o contedor beszel (o Hub).
-
-* Entramos no navegador en http://naspi:8090 e creamos o usuario administrador.
-
-* Dentro do panel, pulsamos en "Add System". Isto daranos unha Clave Pública (Public Key).
-
-* Copiamos esa clave e pegámola nas variables de entorno ou directamente no docker-compose.yml onde pon KEY=.
-
-* Iniciamos o contedor beszel-agent.
-
 
 ## 8. Seguridade
 
@@ -393,14 +390,20 @@ A seguridade reforzouse mediante:
 * Limitación do acceso remoto: deshabilitaremos o ssh 
 * Creouse un certificado SSL propio e activouse o HTTPS
 * Actualizacións periódicas do sistema
+* Ademais acceder desde fora da rede sin avrir portos.
+* Utilizamos unhas contrasinais seguras.
+
 
 ## 9. Probas de funcionamento
 
 Realizáronse diversas probas:
 
 * Acceso ás carpetas compartidas dende outro dispositivo
+![alt text]()
 * Funcionamento correcto do servidor DNS
+  
 * Monitorización do rendemento da Rasberry Pi
+  ![alt text]()
 
 ## 10. Problemas encontrados e solucións
 
@@ -408,7 +411,7 @@ Durante o desenvolvemento apareceron algunhas dificultades:
 
 ## 10.1 A tarxeta de expansion Radxa non detectaba os discos
  Para solucionalo debemos modificar o arquivo, co comando `sudo nano /boot/fimware/config.txt` e engadimos na ultima linea do arquivo:
-```
+```bash
 [all] 
 dtparam=pciex1=on 
 dtparam=pciex1_gen=3
@@ -419,23 +422,20 @@ Se ao intentar entrar en Nextcloud dende unha IP de Tailscale ou WireGuard apare
 
 Para autorizar a nova IP, temos que editar o arquivo config.php. Como é un arquivo protexido, non podemos facelo cun usuario normal, así que seguiremos estes pasos na terminal.
 
-Primeiro, temos que converternos en usuario Root.
+Primeiro, temos que converternos en usuario Root. Para iso executamos:
 
- Para iso executamos:
-
-```
+```bash
 sudo -i
 ```
 
 Unha vez sexamos root, navegaremos ata a ruta onde está a configuración.
 
-```
+```bash
 cd /srv/dev-disk-by-uuid-dee6e7ad-abb0-483d-93f4-3052adb442d4/appdata/nextcloud/config/www/nextcloud/config
 ```
 Agora abriremos o arquivo co editor de texto nano:
 
-```
-
+```bash
 nano config.php
 ```
 Dentro do arquivo, temos que buscar o bloque que pon **trusted_domains**. Temos que engadir unha liña nova coa nosa IP seguindo a orde dos números.
@@ -447,15 +447,14 @@ Ten que quedar asi:
   array (
     0 => 'localhost',
     1 => 'naspi',
-    2 => '100.114.185.22',
-    3 => '192.168.1.100',
+    2 => '192.168.1.100',
   ),
 ```
 
 Para rematar:
 
-* Pulsamos Ctrl + O e logo Enter para gardar.
-* Pulsamos Ctrl + X para saír do editor.
+* Pulsamos `Ctrl + O` e logo Enter para gardar.
+* Pulsamos `Ctrl + X` para saír do editor.
 * Escribimos exit para pechar a sesión de root.
 
 Agora, se recargamos a páxina web, o acceso estará permitido e xa veremos o login de Nextcloud.
