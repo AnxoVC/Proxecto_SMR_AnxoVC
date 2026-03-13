@@ -1,8 +1,8 @@
-# VPN con Bloqueo de Publicidade
-Para conectarnos a casa de forma segura e navegar sen anuncios, usaremos WireGuard (WG-Easy), Pi-hole e DuckDNS.
+# VPN com Bloqueio de Publicidade
+Para nos conectarmos a casa de forma segura e navegar sem anúncios, usaremos WireGuard (WG-Easy), Pi-hole e DuckDNS.
 
-## 1.1 Código de Instalación (Compose)
-Iremos a Servizos - Compose - Arquivos e crearemos un arquivo chamado vpn-pihole. Pegamos este código, que xa inclúe a automatización para que a túa VPN funcione sempre:
+## 1.1 Código de Instalação (Compose)
+Iremos a Serviços - Compose - Arquivos e criaremos um arquivo chamado vpn-pihole. Colamos este código, que já inclui a automatização para que a sua VPN funcione sempre:
 
 ```YAML
 
@@ -66,21 +66,21 @@ networks:
       config:
         - subnet: 10.8.1.0/24
 ```
-## 1.2 Configuración e Probas
-Unha vez que os contedores estean funcionando (en verde), segue estes pasos:
+## 1.2 Configuração e Testes
+Uma vez que os contêineres estejam a funcionar (em verde), siga estes passos:
 
-* Conectar o Móbil (WireGuard):
-  * Entra no panel web de WireGuard en: http://naspi:51821.
-  * Crea un novo cliente premendo en "+ New Client" e ponlle o teu nome.
-  * Pulsa na icona do Código QR.
-  * Abre a app oficial de WireGuard no teu móbil e elixe "Escanear código QR".
-  * Ponlle un nome (ex: "Casa VPN") e activa o interruptor.
-* Entrar ao Panel de Control (Pi-hole):
-  * Abre o navegador e entra en: http://naspi:5353/admin.
-  * Usa o teu contrasinal: mi_contraseña.
-  * Moi importante: Vai a Settings > DNS, baixa ata "Interface settings" e marca "Permit all origins". Sen isto, a VPN non terá internet.
-* Comandos Útiles:
-  * Xerar Hash de WireGuard: sudo docker run --rm ghcr.io/wg-easy/wg-easy wgpw **mi_contraseña**.
-  * Resetear contrasinal Pi-hole: sudo docker exec -it pihole 
+* Conectar o Telemóvel (WireGuard):
+  * Entre no painel web do WireGuard em: http://naspi:51821.
+  * Crie um novo cliente clicando em "+ New Client" e dê-lhe o seu nome.
+  * Clique no ícone do Código QR.
+  * Abra a app oficial do WireGuard no seu telemóvel e escolha "Escanear código QR".
+  * Dê-lhe um nome (ex: "Casa VPN") e ative o interruptor.
+* Entrar no Painel de Controlo (Pi-hole):
+  * Abra o navegador e entre em: http://naspi:5353/admin.
+  * Use a sua palavra-passe: mi_contraseña.
+  * Muito importante: Vá a Settings > DNS, desça até "Interface settings" e marque "Permit all origins". Sem isto, a VPN não terá internet.
+* Comandos Úteis:
+  * Gerar Hash do WireGuard: sudo docker run --rm ghcr.io/wg-easy/wg-easy wgpw **mi_contraseña**.
+  * Redefinir palavra-passe Pi-hole: sudo docker exec -it pihole 
 
-* **Vídeo de Referencia:** [Como instalar WireGuard y Pi hole usando DuckDNS](https://youtu.be/u9VKhBioclI?si=tUw-jEPZ2uiCrDJS).
+* **Vídeo de Referência:** [Como instalar WireGuard y Pi hole usando DuckDNS](https://youtu.be/u9VKhBioclI?si=tUw-jEPZ2uiCrDJS).

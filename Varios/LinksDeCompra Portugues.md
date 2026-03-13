@@ -1,30 +1,31 @@
 # Links de compra utilizados
 
-### 1. Placa Base e Almacenamento
+### 1. Placa Mãe e Armazenamento
 * **Raspberry Pi 5 (8GB RAM):**
-  * [Páxina Oficial (Distribuidores Autorizados)](https://www.raspberrypi.com/products/raspberry-pi-5/)
-  * *Nota: Escolleuse o modelo de 8GB para garantir fluidez ao executar múltiples contedores Docker simultaneamente.*
+  * [Página Oficial (Distribuidores Autorizados)](https://www.raspberrypi.com/products/raspberry-pi-5/)
+  * *Nota: Escolheu-se o modelo de 8GB para garantir fluidez ao executar múltiplos contêineres Docker simultaneamente.*
 
-* **Tarxeta MicroSD (Sistema Operativo):**
-  * **Modelo:** SanDisk Ultra microSDXC 128GB (Clase 10, A1)
-  * [Ligazón de compra (Western Digital / SanDisk Store)](https://shop.sandisk.com/es-es/products/memory-cards/microsd-cards/sandisk-ultra-uhs-i-microsd-120-mbps)
-  * *Nota: Recoméndase este modelo pola súa fiabilidade e velocidade de lectura (ata 120 MB/s), vital para o rendemento do sistema operativo.*
+* **Cartão MicroSD (Sistema Operativo):**
+  * **Modelo:** SanDisk Ultra microSDXC 128GB (Classe 10, A1)
+  * [Link de compra (Western Digital / SanDisk Store)](https://shop.sandisk.com/es-es/products/memory-cards/microsd-cards/sandisk-ultra-uhs-i-microsd-120-mbps)
+  * *Nota: Recomenda-se este modelo pela sua fiabilidade e velocidade de leitura (até 120 MB/s), vital para o desempenho do sistema operativo.*
 
-### 2. Expansión SATA (Radxa)
-Para a conexión dos discos duros e a creación do RAID 5 utilizouse o HAT específico de Radxa, que aproveita o porto PCIe da Raspberry Pi 5.
+### 2. Expansão SATA (Radxa)
+Para a conexão dos discos rígidos e a criação do RAID 5 utilizou-se o HAT específico da Radxa, que aproveita a porta PCIe do Raspberry Pi 5.
 
 * **Radxa Penta SATA HAT:**
-  * [Páxina do Produto (Radxa)](https://radxa.com/products/accessories/penta-sata-hat)
-  * *Características: Soporta ata 5 discos SATA e inclúe xestión de enerxía.*
+  * [Página do Produto (Radxa)](https://radxa.com/products/accessories/penta-sata-hat)
+  * *Características: Suporta até 5 discos SATA e inclui gestão de energia.*
 
-* **Fonte de Alimentación (Para os Discos):**
+* **Fonte de Alimentação (Para os Discos):**
   * **Modelo:** 12V / 3A (Conector 5.5x2.5mm)
-  * [Páxina do Produto (Radxa)](https://radxa.com/products/accessories/power-dc12-36w)
-  * *Importante: Esta fonte alimenta tanto aos discos duros como á propia Raspberry Pi a través do HAT, eliminando a necesidade dun cargador USB-C adicional.*
-### 3. Refrixeración e Carcasa
-Para garantir o silencio e a durabilidade do sistema dentro da carcasa impresa en 3D.
+  * [Página do Produto (Radxa)](https://radxa.com/products/accessories/power-dc12-36w)
+  * *Importante: Esta fonte alimenta tanto os discos rígidos como o próprio Raspberry Pi através do HAT, eliminando a necessidade de um carregador USB-C adicional.*
+
+### 3. Refrigeração e Carcaça
+Para garantir o silêncio e a durabilidade do sistema dentro da carcaça impressa em 3D.
 
 * **Ventilador Silencioso (40x10mm):**
   * **Modelo:** Noctua NF-A4x10 5V PWM
-  * [Ligazón de compra (Amazon / Noctua Oficial)](https://www.amazon.es/dp/B00NEMGCIA/)
-  * *Xustificación: Escolleuse a versión de **5V** para poder conectalo directamente aos pines GPIO da Raspberry Pi.*
+  * [Link de compra (Amazon / Noctua Oficial)](https://www.amazon.es/dp/B00NEMGCIA/)
+  * *Justificação: Escolheu-se a versão de **5V** para poder ligá-lo diretamente aos pinos GPIO do Raspberry Pi.*
