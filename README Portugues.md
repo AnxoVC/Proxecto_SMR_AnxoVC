@@ -1,10 +1,14 @@
 # Projeto de Fim de Curso Anxo Vigo Canosa: Servidor NAS com Rasberry Pi 5
 
+## 1. Introdução
+Este projeto tem como objetivo a criação de um servidor NAS completamente funcional utilizando um Raspberry Pi 5. A ideia nasce da necessidade de dispor de um sistema de armazenamento em rede acessível, eficiente e económico. Este trabalho combina hardware e software e permite compreender de forma prática o funcionamento de um servidor real num ambiente doméstico.
 
 ## 1. Introdução
 
 Este projeto tem como objetivo a criação de um servidor NAS completamente funcional utilizando um Rasberry Pi 5. A ideia nasce da necessidade de dispor de um sistema de armazenamento em rede acessível, eficiente e económico. Este trabalho combina hardware e software e permite compreender de maneira prática o funcionamento de um servidor real num ambiente doméstico.
 
+### 4.1 Raspberry Pi 5
+Este Raspberry Pi 5 de 8GB é o núcleo do projeto. As suas características principais incluem:Processador ARM Cortex-A76Portas USB 3.0 de alta velocidadeMelhorias significativas em relação a gerações anterioresCompatibilidade com armazenamento externo M.2 através de adaptador
 
 ## 2. Justificação do projeto
 
@@ -53,6 +57,7 @@ O armazenamento que estou a usar:
   
 Com isto vou armar um **RAID 5**. O que me permite a tolerância a falhas num só disco, e um espaço útil total de **1.3TB**. 
 
+Com isto vou montar um RAID 5. Isto permite-me tolerância a falhas num único disco e um espaço útil total de 1.3TB.
 
 ### 4.4 Radxa Penta Sata Hat Para Rasberry Pi 5 
 
@@ -187,10 +192,41 @@ PASSWORD_MYSQL_ROOT=mipasword
 
 PASSWORD_PIHOLE_ROOT=mipasword
 
-
 ```
+7.2 NextCloudPara instalar o NextCloud, precisaremos de uma base de dados, por isso instalaremos o Mysql e o PHPMyAdmin.Para os instalar, vamos utilizar o seguinte código:
+```YAML
+services:
+  db:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: db
+    environment:
+      - PUID=${APPUSER_PUID}
+      - PGID=${APPUSER_PGID}
+      - TZ=${TIME_ZONE_VALUE}
+      - MYSQL_ROOT_PASSWORD=${PASSWORD_MYSQL_ROOT}
+    volumes:
+      - ${PATH_TO_APPDATA}/mysql/database:/config
+    ports:
+      - "3306:3306"
+    restart: always
 
-
+  phpmyadmin:
+    image: lscr.io/linuxserver/phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      - PUID=${APPUSER_PUID}
+      - PGID=${APPUSER_PGID}
+      - TZ=${TIME_ZONE_VALUE}
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    volumes:
+      - ${PATH_TO_APPDATA}/phpmyadmin/config:/config
+    ports:
+      - 8081:80
+    restart: unless-stopped
+    depends_on:
+      - db 
+```
 ### 7.2 NextCloud 
 
 Para instalar o NextCloud, necessitaremos de uma base de dados, por isso instalaremos o **Mysql** e o **PHPMyAdmin**.
@@ -549,6 +585,7 @@ Relação de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/
 | **Tailscale**           |  VPN    | [Descarregar](https://tailscale.com/download)                |
 
 ## 14. Rentabilidade Económica
+
 
 
 
