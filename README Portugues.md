@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Projeto de Fim de Curso Anxo Vigo Canosa: Servidor NAS com Rasberry Pi 5
 
 ## 1. Introdução
