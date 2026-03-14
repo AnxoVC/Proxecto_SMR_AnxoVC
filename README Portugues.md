@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Projeto de Fim de Curso Anxo Vigo Canosa: Servidor NAS com Rasberry Pi 5
 
 ## 1. Introdução
@@ -568,6 +569,201 @@ Capturas de ecrã que documentam os passos críticos da configuração do softwa
 ### 13.4 Manuais Técnicos e Scripts
 Documentação técnica específica elaborada durante o projeto para configurações avançadas.
 1.  **Segurança e Rede:**
+Uma vez feito, no terminal aparecerá "Success".
+
+Agora podemos ir à web do Tailscale (Admin Console) e veremos o nosso servidor conectado e com o IP atribuído.
+
+### 7.4 Monitorização com Beszel
+Para ter um controlo detalhado do estado do hardware (CPU, RAM, temperatura, uso de discos e Docker) sem consumir muitos recursos, escolhi o Beszel. É uma ferramenta de monitorização muito leve que consta de duas partes: o Hub (o painel de controlo) e o Agente (que recolhe os dados).
+
+Para instalá-lo, adicionamos o seguinte bloco ao nosso arquivo docker-compose.yml junto com os outros serviços:
+
+```YAML
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ${PATH_TO_APPDATA}/beszel/data:/beszel_data
+```
+#### Processo de configuração:
+
+* Primeiro iniciamos apenas o contêiner beszel.
+
+* Entramos no navegador em http://naspi:8090 e criamos o utilizador administrador.
+
+* Dentro do painel, clicamos em "Add System". Isto dar-nos-á uma Chave Pública.
+
+* Copiamos essa chave e colamo-la nas variáveis de ambiente ou diretamente no docker-compose.yml onde diz KEY=.
+
+* Iniciamos o contêiner beszel-agent dentro do mesmo arquivo de compose do beszel.
+```YAML
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/extra/root:ro
+    environment:
+      - PORT=45876
+      - KEY=Cola aqui a tua chave pública 
+```
+
+## 8. Segurança
+
+A segurança reforçou-se através de:
+
+* Permissões adequadas em pastas
+* Limitação do acesso remoto: desativaremos o ssh 
+* Criou-se um certificado SSL próprio e ativou-se o HTTPS
+* Atualizações periódicas do sistema
+* Além de aceder de fora da rede sem abrir portas.
+* Utilizamos palavras-passe seguras.
+
+
+## 9. Testes de funcionamento
+
+Realizaram-se diversos testes:
+
+* Acesso às pastas partilhadas a partir de outro dispositivo
+![alt text]()
+* Funcionamento correto do servidor DNS
+  
+* Monitorização do desempenho do Rasberry Pi
+  ![alt text]()
+
+## 10. Problemas encontrados e soluções
+
+Durante o desenvolvimento apareceram algumas dificuldades:
+
+## 10.1 A placa de expansão Radxa não detetava os discos
+ Para solucioná-lo devemos alterar o arquivo, com o comando `sudo nano /boot/firmware/config.txt` e adicionamos na última linha do arquivo:
+```bash
+[all] 
+dtparam=pciex1=on 
+dtparam=pciex1_gen=3
+``` 
+
+## 10.2 Domínio não confiável no NextCloud
+Se ao tentar entrar no Nextcloud a partir de um IP do Tailscale ou WireGuard aparece um ecrã azul com a mensagem "Acesso através de um domínio que não é de confiança", é porque o Nextcloud tem uma lista de segurança e bloqueia tudo o que não estiver nela.
+
+Para autorizar o novo IP, temos que editar o arquivo config.php. Como é um arquivo protegido, não podemos fazê-lo com um utilizador normal, assim que seguiremos estes passos no terminal.
+
+Primeiro, temos que nos converter em utilizador Root. Para isso executamos:
+
+```bash
+sudo -i
+```
+
+Uma vez sendo root, navegaremos até à rota onde está a configuração.
+
+```bash
+cd /srv/dev-disk-by-uuid-dee6e7ad-abb0-483d-93f4-3052adb442d4/appdata/nextcloud/config/www/nextcloud/config
+```
+Agora abriremos o arquivo com o editor de texto nano:
+
+```bash
+nano config.php
+```
+Dentro do arquivo, temos que procurar o bloco que diz **trusted_domains**. Temos que adicionar uma linha nova com o nosso IP seguindo a ordem dos números.
+
+Tem que ficar assim:
+
+```PHP
+  'trusted_domains' => 
+  array (
+    0 => 'localhost',
+    1 => 'naspi',
+    2 => '192.168.1.100',
+  ),
+```
+
+Para terminar:
+
+* Pressionamos `Ctrl + O` e depois Enter para guardar.
+* Pressionamos `Ctrl + X` para sair do editor.
+* Escrevemos exit para fechar a sessão de root.
+
+Agora, se recarregarmos a página web, o acesso estará permitido e já veremos o login do Nextcloud.
+
+
+## 11. Fabricação da Carcaça com Impressão 3D
+
+Dado que o sistema consta de múltiplos componentes (Raspberry Pi, HAT, 4 discos rígidos e cablagem), era imprescindível contar com uma estrutura física que mantivesse tudo unido, protegido e ordenado. Para isto, optou-se pela tecnologia de impressão 3D.
+
+### 11.1 Justificação do design
+A carcaça cumpre três funções vitais neste projeto:
+1.  **Refrigeração ativa:** O design canaliza o fluxo de ar desde o ventilador superior através dos discos rígidos e do Raspberry Pi, evitando o superaquecimento.
+2.  **Proteção mecânica:** Evita que os discos rígidos vibrem ou se movam, o que poderia causar erros de leitura ou danos físicos nos setores do disco.
+3.  **Gestão de cablagem:** Oculta os cabos SATA e de alimentação, dando um acabamento profissional ao servidor.
+
+### 11.2 Equipamento e Parâmetros
+Para a fabricação das peças utilizou-se uma impressora 3D **Artillery Genius**. Escolheu-se o material **ASA** pela sua alta resistência aos raios UV e, sobretudo, pela sua resistência térmica superior, ideal para componentes que podem alcançar temperaturas médias-altas.
+
+A seguir mostra-se um resumo dos parâmetros de fatiamento utilizados:
+
+| Parâmetro                | Valor                                                                      |
+| :----------------------- | :------------------------------------------------------------------------- |
+| **Material**             | [ASA](https://drive.google.com/file/d/1JwExN4wd10Q1Cfse2LEXTuhXmUYmsdq4/view?usp=sharing) |                                                                    |
+| **Preenchimento (Infill)** | 20%                                                                        |
+| **Temperatura Bico** | 240°C - 245°C                                                              |
+| **Temperatura Mesa**     | 95°C - 100°C                                                               |
+| **Refrigeração**        | 0%                                                                         |
+
+Podes consultar o documento detalhado com toda a configuração do Cura no seguinte link:
+
+**[Perfil de Impressão Completo (ASA)](https://drive.google.com/file/d/1YtvuCdPHcNcCcg9tZI5pMN8JEUxIFYdY/view?usp=drive_link)**
+
+### 11.3 Montagem final
+Uma vez impressas as peças, realizou-se a montagem utilizando parafusos métrica M2.5 e M3. Adicionou-se um ventilador PWM Noctua na parte superior controlado pelo software do Radxa Penta HAT, que se ativa automaticamente consoante a temperatura da CPU.
+
+### 11.4 Créditos e Licença do Design
+Para a realização da carcaça optou-se por utilizar o design criado por Michael Klements, adaptando-o às necessidades específicas deste projeto. Reconhece-se a autoria original e agradece-se a documentação técnica proporcionada.
+
+* **Autor:** Michael Klements (The DIY Life)
+* **Projeto Original:** "I Built A 4-Bay Raspberry Pi 5 Based NAS"
+* **Fonte do modelo:** [https://the-diy-life.com/i-built-a-4-bay-raspberry-pi-5-based-nas/](https://the-diy-life.com/i-built-a-4-bay-raspberry-pi-5-based-nas/)
+
+### 11.5 Arquivos de Impressão
+Os arquivos fatiados listos para imprimir podem-se encontrar na seguinte localização do projeto:
+
+**[Link para a pasta GCodes](https://drive.google.com/drive/folders/181ueH3BIyR8PGevTSBU_5yRnzfdhhJOC?usp=sharing)**
+
+## 12. Conclusão
+
+Este projeto permitiu criar um servidor NAS funcional, seguro e totalmente personalizado utilizando um Rasberry Pi 5. Além de oferecer uma solução prática para armazenar dados pessoais, o processo serviu para adquirir conhecimentos em administração de sistemas, serviços de rede, e configuração de hardware.
+
+E aprendi coisas que não se dão no ciclo, porque não nos ensinam a criar uma vpn própria ou um servidor de armazenamento que pode ser muito útil. 
+
+
+## 13. Anexos
+
+Nesta secção recolhe-se toda a documentação complementar, recursos gráficos e referências necessárias para replicar o projeto.
+
+* Imagens da montagem
+* Capturas de comandos
+* Links de compra
+* Software de instalação
+### 13.1 Material Fotográfico
+Recompilação visual do processo de montagem e do resultado final do servidor.
+*  **[Ver Galeria de Imagens da Montagem](https://drive.google.com/drive/folders/197o6vWHkWA7Vpss-BtKSE1F6kdA77Qjc?usp=sharing)**
+    * *Inclui: Fotos dos componentes, montagem do HAT, conexão dos discos e instalação na carcaça.*
+
+### 13.2 Registo de Configuração
+Capturas de ecrã que documentam os passos críticos da configuração do software.
+*  **[Capturas de Comandos](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/Imagenes)**
+
+### 13.3 Lista de Compras e Hardware
+*  **[ Anexo de Compras Completo](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/blob/main/Varios/LinksDeCompra.pdf)**
+
+### 13.4 Manuais Técnicos e Scripts
+Documentação técnica específica elaborada durante o projeto para configurações avançadas.
+1.  **Segurança e Rede:**
     * **[Manual de Instalação: Pi-hole + WireGuard](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/blob/main/Varios/Instalar_Pi-Hole_Wireguard.pdf)**
 2.  **Fabricação (Impressão 3D):**
     * **[Perfil de Impressão ASA (Artillery Genius)](https://drive.google.com/file/d/1axdeiDCbMl3HMvVPL1501YVSku34JNCY/view?usp=drive_link)**
@@ -586,7 +782,45 @@ Relação de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/
 
 ## 14. Rentabilidade Económica
 
+A viabilidade económica e comercial do projeto EcoNAS Seguro desenvolvido pela EcoNube Sistemas é muito elevada graças ao uso de hardware de placa reduzida e à aplicação dos princípios da economia circular. Ao reutilizar componentes de armazenamento, reduzem-se drasticamente os custos de produção.
 
+Abaixo, detalha-se a estrutura de custos, o preço de venda e a margem de lucro estimada para uma unidade base do nosso servidor NAS.
 
+### 14.1. Custos de Produção
+Para a montagem de uma unidade do servidor necessita-se do seguinte material:
 
+| Componente | Descrição | Custo Estimado € |
+| :--- | :--- | :--- |
+| Placa Base | Raspberry Pi 5 | 110,00 € |
+| Expansão | Radxa Penta SATA Hat + Fonte 12V 3A | 55,00 € |
+| Armazenamento SO | MicroSD SanDisk Ultra 128GB | 15,00 € |
+| Armazenamento Dados | 4x HDD 2.5" 500GB | 0,00 € |
+| Vários | Cabos SATA, dissipador, caixa/carcaça | 20,00 € |
+| **Total Hardware** | | **200,00 €** |
 
+### 14.2. Custos de Mão de Obra e Implementação
+A montagem física, juntamente com a instalação do sistema operativo, configuração do OpenMediaVault, criação do RAID 5, e a implementação do Nextcloud e a VPN, é levada a cabo pelos nossos técnicos SMR.
+
+Estimamos um tempo de trabalho de 3 horas por equipamento.
+A um custo interno de 20,00 €/hora para a empresa, o custo de mão de obra ascende a 60,00 € por unidade.
+
+**Custo Total de Produção: 260,00 €**
+
+### 14.3. Preço de Venda e Margem de Lucro
+Soluções comerciais similares no mercado costumam superar os 450 €.
+
+O preço de venda ao público do nosso "EcoNAS Seguro" estabelece-se em 390,00 €.
+
+**Margem de lucro líquido por unidade:** 390,00 € - 260,00 € = 130,00 €.
+
+Isto supõe uma margem de rendimento excelente para um produto de hardware de rede, justificada pela enorme poupança de não ter que comprar discos rígidos novos e pelo alto valor acrescentado da configuração de software personalizada.
+
+### 14.4. Receitas Recorrentes
+Além da venda do equipamento físico, a verdadeira estabilidade económica da EcoNube Sistemas baseia-se na oferta de um serviço de manutenção mensal opcional.
+
+**Serviço de Manutenção Premium:** Por uma quota de 5,00 €/mês, a nossa empresa encarrega-se de monitorizar remotamente a saúde do RAID 5, aplicar atualizações de segurança no sistema Linux e gerir os certificados e utilizadores da VPN.
+
+**Viabilidade a longo prazo:** Com um parque de apenas 20 clientes subscritos a este serviço, a empresa geraria 100,00 € mensuais de receitas passivas. Isto ajuda a cobrir despesas fixas do local ou licenças, convertendo o modelo de negócio numa proposta altamente sustentável e escalável a longo prazo.carrega-se de monitorizar remotamente a saúde do RAID 5, aplicar atualizações de segurança no sistema Linux e gerir os certificados e utilizadores da VPN.
+
+**Viabilidade a longo prazo:** Com um parque de apenas 20 clientes subscritos a este serviço, a empresa geraria 100,00 € mensais de receitas passivas. Isto ajuda a cobrir despesas fixas do local ou licenças, convertendo o modelo de negócio numa proposta altamente sustentável e escalável a longo prazo.
+>>>>>>> 2f87ea4 (feat(docs): Adds complete section 14 and generates PDFs)

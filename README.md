@@ -540,6 +540,200 @@ Documentación técnica específica elaborada durante o proxecto para configurac
 ### 13.5 Software de Instalación e Utilidades
 Relación de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/Software) de terceiros empregado para a posta en marcha e xestión do servidor:
 
+```YAML
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ${PATH_TO_APPDATA}/beszel/data:/beszel_data
+```
+#### Proceso de configuración:
+
+* Primeiro iniciamos só o contedor beszel.
+
+* Entramos no navegador en http://naspi:8090 e creamos o usuario administrador.
+
+* Dentro do panel, pulsamos en "Add System". Isto daranos unha Clave Pública.
+
+* Copiamos esa clave e pegámola nas variables de entorno ou directamente no docker-compose.yml onde pon KEY=.
+
+* Iniciamos o contedor beszel-agent dentro do mesmo contenedor de beszel.
+```YAML
+beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/extra/root:ro
+    environment:
+      - PORT=45876
+      - KEY=Pega aqui a tua clave publica 
+```
+
+## 8. Seguridade
+
+A seguridade reforzouse mediante:
+
+* Permisos axeitados en carpetas
+* Limitación do acceso remoto: deshabilitaremos o ssh 
+* Creouse un certificado SSL propio e activouse o HTTPS
+* Actualizacións periódicas do sistema
+* Ademais acceder desde fora da rede sin avrir portos.
+* Utilizamos unhas contrasinais seguras.
+
+
+## 9. Probas de funcionamento
+
+Realizáronse diversas probas:
+
+* Acceso ás carpetas compartidas dende outro dispositivo
+![alt text]()
+* Funcionamento correcto do servidor DNS
+  
+* Monitorización do rendemento da Rasberry Pi
+  ![alt text]()
+
+## 10. Problemas encontrados e solucións
+
+Durante o desenvolvemento apareceron algunhas dificultades:
+
+## 10.1 A tarxeta de expansion Radxa non detectaba os discos
+ Para solucionalo debemos modificar o arquivo, co comando `sudo nano /boot/fimware/config.txt` e engadimos na ultima linea do arquivo:
+```bash
+[all] 
+dtparam=pciex1=on 
+dtparam=pciex1_gen=3
+``` 
+
+## 10.2 Dominio non confiable en NextCloud
+Se ao intentar entrar en Nextcloud dende unha IP de Tailscale ou WireGuard aparece unha pantalla azul coa mensaxe "Acceso a través de un dominio en el que no se confía", é porque Nextcloud ten unha lista de seguridade e bloquea todo o que non estea nela.
+
+Para autorizar a nova IP, temos que editar o arquivo config.php. Como é un arquivo protexido, non podemos facelo cun usuario normal, así que seguiremos estes pasos na terminal.
+
+Primeiro, temos que converternos en usuario Root. Para iso executamos:
+
+```bash
+sudo -i
+```
+
+Unha vez sexamos root, navegaremos ata a ruta onde está a configuración.
+
+```bash
+cd /srv/dev-disk-by-uuid-dee6e7ad-abb0-483d-93f4-3052adb442d4/appdata/nextcloud/config/www/nextcloud/config
+```
+Agora abriremos o arquivo co editor de texto nano:
+
+```bash
+nano config.php
+```
+Dentro do arquivo, temos que buscar o bloque que pon **trusted_domains**. Temos que engadir unha liña nova coa nosa IP seguindo a orde dos números.
+
+Ten que quedar asi:
+
+```PHP
+  'trusted_domains' => 
+  array (
+    0 => 'localhost',
+    1 => 'naspi',
+    2 => '192.168.1.100',
+  ),
+```
+
+Para rematar:
+
+* Pulsamos `Ctrl + O` e logo Enter para gardar.
+* Pulsamos `Ctrl + X` para saír do editor.
+* Escribimos exit para pechar a sesión de root.
+
+Agora, se recargamos a páxina web, o acceso estará permitido e xa veremos o login de Nextcloud.
+
+
+## 11. Fabricación da Carcasa con Impresión 3D
+
+Dado que o sistema consta de múltiples compoñentes (Raspberry Pi, HAT, 4 discos duros e cableado), era imprescindible contar cunha estrutura física que mantivese todo unido, protexido e ordenado. Para isto, optouse pola tecnoloxía de impresión 3D.
+
+### 11.1 Xustificación do deseño
+A carcasa cumpre tres funcións vitais neste proxecto:
+1.  **Refrixeración activa:** O deseño canaliza o fluxo de aire dende o ventilador superior a través dos discos duros e a Raspberry Pi, evitando o sobrequecemento.
+2.  **Protección mecánica:** Evita que os discos duros vibren ou se movan, o cal podería causar erros de lectura ou danos físicos nos sectores do disco.
+3.  **Xestión de cableado:** Oculta os cables SATA e de alimentación, dándolle un acabado profesional ao servidor.
+
+### 11.2 Equipamento e Parámetros
+Para a fabricación das pezas utilizouse unha impresora 3D **Artillery Genius**. Escolleuse o material **ASA** pola súa alta resistencia aos raios UV e, sobre todo, pola súa resistencia térmica superior, ideal para compoñentes que poden alcanzar temperaturas medias-altas.
+
+A continuación móstrase un resumo dos parámetros de laminado utilizados:
+
+| Parámetro                | Valor                                                                      |
+| :----------------------- | :------------------------------------------------------------------------- |
+| **Material**             | [ASA](https://drive.google.com/file/d/1JwExN4wd10Q1Cfse2LEXTuhXmUYmsdq4/view?usp=sharing) |                                                                    |
+| **Recheo (Infill)**      | 20%                                                                        |
+| **Temperatura Boquilla** | 240°C - 245°C                                                              |
+| **Temperatura Cama**     | 95°C - 100°C                                                               |
+| **Refrixeración**        | 0%                                                                         |
+
+Podes consultar o documento detallado con toda a configuración de Cura no seguinte enlace:
+
+**[Perfil de Impresión Completo (ASA)](https://drive.google.com/file/d/1YtvuCdPHcNcCcg9tZI5pMN8JEUxIFYdY/view?usp=drive_link)**
+
+### 11.3 Montaxe final
+Unha vez impresas as pezas, realizouse a montaxe utilizando parafusos métrica M2.5 e M3. Engadiuse un ventilador PWM Noctua na parte superior controlado polo software do Radxa Penta HAT, que se activa automaticamente segundo a temperatura da CPU.
+
+### 11.4 Créditos e Licenza do Deseño
+Para a realización da carcasa optouse por utilizar o deseño creado por Michael Klements, adaptándoo ás necesidades específicas deste proxecto. Recoñécese a autoría orixinal e agradécese a documentación técnica proporcionada.
+
+*   **Autor:** Michael Klements (The DIY Life)
+*   **Proxecto Orixinal:** "I Built A 4-Bay Raspberry Pi 5 Based NAS"
+*   **Fonte do modelo:** [https://the-diy-life.com/i-built-a-4-bay-raspberry-pi-5-based-nas/](https://the-diy-life.com/i-built-a-4-bay-raspberry-pi-5-based-nas/)
+
+### 11.5 Arquivos de Impresión
+Os arquivos laminados listos para imprimir pódense atopar na seguinte localización do proxecto:
+
+**[Enlace á carpeta GCodes](https://drive.google.com/drive/folders/181ueH3BIyR8PGevTSBU_5yRnzfdhhJOC?usp=sharing)**
+
+## 12. Conclusión
+
+Este proxecto permitiu crear un servidor NAS funcional, seguro e totalmente personalizado utilizando unha Rasberry Pi 5. Ademais de ofrecer unha solución práctica para almacenar datos persoais, o proceso serviu para adquirir coñecementos en administración de sistemas, servizos de rede, e configuración de hardware.
+
+E aprendin cousas que non se dan no ciclo, porque non nos aprenden a crear unha vpn propia ou un servidor de almacenamiento que pode ser mui util. 
+
+
+## 13. Anexos
+
+Neste apartado recóllese toda a documentación complementaria, recursos gráficos e referencias necesarias para replicar o proxecto.
+
+*   Imaxes da montaxe
+*   Capturas de comandos
+*   Links de compra
+*   Software de instalacion
+### 13.1 Material Fotográfico
+Recompilación visual do proceso de montaxe e do resultado final do servidor.
+*    **[Ver Galería de Imaxes da Montaxe](https://drive.google.com/drive/folders/197o6vWHkWA7Vpss-BtKSE1F9kdA77Qjc?usp=sharing)**
+    *   *Inclúe: Fotos dos compoñentes, ensamblaxe do HAT, conexión dos discos e instalación na carcasa.*
+
+### 13.2 Rexistro de Configuración
+Capturas de pantalla que documentan os pasos críticos da configuración do software.
+*    **[Capturas de Comandos](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/Imagenes)**
+
+### 13.3 Listaxe de Compras e Hardware
+*    **[ Anexo de Compras Completo](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/blob/main/Varios/LinksDeCompra.pdf)**
+
+### 13.4 Manuais Técnicos e Scripts
+Documentación técnica específica elaborada durante o proxecto para configuracións avanzadas.
+1.  **Seguridade e Rede:**
+    *   **[Manual de Instalación: Pi-hole + WireGuard](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/blob/main/Varios/Instalar_Pi-Hole_Wireguard.pdf)**
+2.  **Fabricación (Impresión 3D):**
+    *   **[Perfil de Impresión ASA (Artillery Genius)](https://drive.google.com/file/d/1axdeiDCbMl3HMvVPL1501YVSku34JNCY/view?usp=drive_link)**
+    *   **[Arquivos de Impresión (.gcode)](https://drive.google.com/drive/folders/181ueH3BIyR8PGevTSBU_5yRnzfdhhJOC?usp=drive_link)**
+
+### 13.5 Software de Instalación e Utilidades
+Relación de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/Software) de terceiros empregado para a posta en marcha e xestión do servidor:
+
 | Software                | Función                           | Ligazón Oficial                                            |
 | :---------------------- | :-------------------------------- | :--------------------------------------------------------- |
 | **Raspberry Pi Imager** | Gravación do SO na MicroSD        | [Descargar](https://www.raspberrypi.com/software/)         |
@@ -550,5 +744,43 @@ Relación de [software](https://github.com/AnxoVC/Proxecto_SMR_AnxoVC/tree/main/
 
 ## 14. Rentabilidad Economica
 
+A viabilidade económica e comercial do proxecto EcoNAS Seguro desenvolvido por EcoNube Sistemas é moi elevada grazas ao uso de hardware de placa reducida e á aplicación dos principios da economía circular. Ao reutilizar compoñentes de almacenamento, redúcense drasticamente os custos de produción.
 
+A continuación, detállase a estrutura de custos, o prezo de venda e a marxe de beneficio estimada para unha unidade base do noso servidor NAS.
 
+### 14.1. Custos de Produción
+Para a montaxe dunha unidade do servidor necesítase o seguinte material:
+
+| Compoñente | Descrición | Custo Estimado € |
+| :--- | :--- | :--- |
+| Placa Base | Raspberry Pi 5 | 110,00 € |
+| Expansión | Radxa Penta SATA Hat + Fonte 12V 3A | 55,00 € |
+| Almacenamento SO | MicroSD SanDisk Ultra 128GB | 15,00 € |
+| Almacenamento Datos | 4x HDD 2.5" 500GB | 0,00 € |
+| Varios | Cables SATA, disipador, caixa/carcasa | 20,00 € |
+| **Total Hardware** | | **200,00 €** |
+
+### 14.2. Custos de Man de Obra e Despregamento
+A montaxe física, xunto coa instalación do sistema operativo, configuración de OpenMediaVault, creación do RAID 5, e a implantación de Nextcloud e a VPN, lévase a cabo polos nosos técnicos SMR.
+
+Estimamos un tempo de traballo de 3 horas por equipo.
+A un custo interno de 20,00 €/hora para a empresa, o custo de man de obra ascende a 60,00 € por unidade.
+
+**Custo Total de Produción: 260,00 €**
+
+### 14.3. Prezo de Venda e Marxe de Beneficio
+Solucións comerciais similares no mercado adoitan superar os 450 €.
+
+O prezo de venda ao público do noso "EcoNAS Seguro" establécese en 390,00 €.
+
+**Marxe de beneficio neto por unidade:** 390,00 € - 260,00 € = 130,00 €.
+
+Isto supón unha marxe de rendemento excelente para un produto de hardware de rede, xustificada polo enorme aforro de non ter que comprar discos duros novos e polo alto valor engadido da configuración de software personalizada.
+
+### 14.4. Ingresos Recorrentes
+Ademais da venda do equipo físico, a verdadeira estabilidade económica de EcoNube Sistemas baséase na oferta dun servizo de mantemento mensual opcional.
+
+**Servizo de Mantemento Premium:** Por unha cota de 5,00 €/mes, a nosa empresa encárgase de monitorizar remotamente a saúde do RAID 5, aplicar actualizacións de seguridade no sistema Linux e xestionar os certificados e usuarios da VPN.
+
+**Viabilidade a longo prazo:** Cun parque de só 20 clientes subscritos a este servizo, a empresa xeraría 100,00 € mensuais de ingresos pasivos. Isto axuda a cubrir gastos fixos do local ou licenzas, convertendo o modelo de negocio nunha proposta altamente sostible e escalable a longo prazo.
+```
