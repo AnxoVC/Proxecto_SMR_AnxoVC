@@ -823,4 +823,3 @@ Além da venda do equipamento físico, a verdadeira estabilidade económica da E
 **Viabilidade a longo prazo:** Com um parque de apenas 20 clientes subscritos a este serviço, a empresa geraria 100,00 € mensuais de receitas passivas. Isto ajuda a cobrir despesas fixas do local ou licenças, convertendo o modelo de negócio numa proposta altamente sustentável e escalável a longo prazo.carrega-se de monitorizar remotamente a saúde do RAID 5, aplicar atualizações de segurança no sistema Linux e gerir os certificados e utilizadores da VPN.
 
 **Viabilidade a longo prazo:** Com um parque de apenas 20 clientes subscritos a este serviço, a empresa geraria 100,00 € mensais de receitas passivas. Isto ajuda a cobrir despesas fixas do local ou licenças, convertendo o modelo de negócio numa proposta altamente sustentável e escalável a longo prazo.
->>>>>>> 2f87ea4 (feat(docs): Adds complete section 14 and generates PDFs)
