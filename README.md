@@ -783,4 +783,3 @@ Ademais da venda do equipo físico, a verdadeira estabilidade económica de EcoN
 **Servizo de Mantemento Premium:** Por unha cota de 5,00 €/mes, a nosa empresa encárgase de monitorizar remotamente a saúde do RAID 5, aplicar actualizacións de seguridade no sistema Linux e xestionar os certificados e usuarios da VPN.
 
 **Viabilidade a longo prazo:** Cun parque de só 20 clientes subscritos a este servizo, a empresa xeraría 100,00 € mensuais de ingresos pasivos. Isto axuda a cubrir gastos fixos do local ou licenzas, convertendo o modelo de negocio nunha proposta altamente sostible e escalable a longo prazo.
-```
